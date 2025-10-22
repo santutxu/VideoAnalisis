@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 
-class ControlsBar(QWidget):
+class ControlsBar2(QWidget):
     """
     Barra de controles para la reproducción del video.
     """
@@ -67,7 +67,7 @@ class ControlsBar(QWidget):
         # Control de velocidad
         layout.addWidget(QLabel("Velocidad:"))
         self.speed_combo = QComboBox()
-        self.speed_combo.addItems(["0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x"])
+        self.speed_combo.addItems(["0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x", "3x", "4x"])
         self.speed_combo.setCurrentText("1x")
         self.speed_combo.currentTextChanged.connect(self._on_speed_changed)
         self.speed_combo.setToolTip("Velocidad de reproducción")

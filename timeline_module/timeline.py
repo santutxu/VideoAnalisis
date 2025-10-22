@@ -3,7 +3,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from .timeline_item import TimelineItem
 from .timeline_ruler import TimelineRuler
-from .timeline_lines import PlayheadLine, CutLine
+from .timeline_playhead_line import PlayheadLine
+from .timeline_cutline import CutLine
 
 class Timeline(QGraphicsView):
     """Widget del timeline mejorado con zoom y corte"""
@@ -28,7 +29,7 @@ class Timeline(QGraphicsView):
         # Configuración de auto-scroll
         self.auto_scroll_config = {
             'enabled': True,
-            'margin': 20,           # Píxeles de margen
+            'margin': 30,           # Píxeles de margen
             'smooth': True,          # Scroll suave animado
             'center_on_play': True,  # Centrar al iniciar reproducción
             'follow_during_play': True  # Seguir durante reproducción
@@ -51,7 +52,7 @@ class Timeline(QGraphicsView):
         self.min_pixels_per_second = 2
         self.max_pixels_per_second = 50
         self.pixels_per_second = 10
-        self.timeline_duration = 1500
+        self.timeline_duration = 1200
         self.timeline_width = self.timeline_duration * self.max_pixels_per_second
         self.timeline_height = 80
         

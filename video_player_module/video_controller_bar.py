@@ -555,11 +555,13 @@ class VideoControlBar(QWidget):
             
             self.total_time_label.setText(f"Frame: {self.current_frame:,}")
             self.current_time_label.setText(current_str)
+            self.current_time_label.repaint()
         
     def update_time_labels2(self,seconds):
         time = self.format_time(seconds)
         """Actualizar las etiquetas de tiempo"""
         self.current_time_label.setText(time)
+        self.current_time_label.repaint()
             
     def format_time(self, seconds):
         """Formatear tiempo en HH:MM:SS"""

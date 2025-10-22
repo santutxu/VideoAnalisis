@@ -1,0 +1,17 @@
+{
+        "4x3d": {"id":"4x3d","name":"4x3","icon": "🟨", "color": "#FFC107", "categoria": "Defensa","time":"5"},
+        "acciond": {"id":"acciond","name":"Accion Def","icon": "📊", "color": "#FFC107", "categoria": "Defensa","time":"5"},
+        "desajuste":{"id":"desajuste","name":"Desajuste","icon": "🏒", "color": "#FFC107", "categoria": "Defensa","time":"5"},
+        
+        "4x3a": {"id":"4x3a","name":"4x3","icon": "🔄", "color": "#FF6A07", "categoria": "Ataque","time":"5"},
+        "finalizacion": {"id":"finalizacion","name":"Finalizacion","icon": "🎯", "color": "#FF6A07", "categoria": "Ataque","time":"5"},
+        
+        "repliegue": {"id":"repliegue","name":"Repliegue","icon": "↩️", "color": "#2196F3", "categoria": "transicion","time":"5"},
+        "contra":   {"id":"contra","name":"Contraataque","icon": "⚡", "color": "#2196F3", "categoria": "transicion","time":"5"},
+        
+        "penalti":   {"id":"penalti","name":"Penalti","icon": "⚡", "color": "#006A07", "categoria": "bolapareda","time":"5"},
+        "fdirecta":   {"id":"fdirecta","name":"F.D","icon": "⚡", "color": "#006A07", "categoria": "bolapareda","time":"5"},
+        "falta":   {"id":"falta","name":"Falta","icon": "⚡", "color": "#006A07", "categoria": "bolapareda","time":"5"},
+        
+        "gol":   {"id":"gol","name":"GOL","icon": "⚡", "color": "#E620E6", "categoria": "gol","time":"5"}
+}

@@ -7,19 +7,6 @@ class ActionsWidget(QWidget):
     def __init__(self,event_definitions):
         super().__init__()
         self.event_definitions = event_definitions
-        #self.event_manager = event_panel.event_manager
-        self.eventos_1 = [
-            {"texto":"Repliegue","id":"repliegue","color":"#FF5733","tiempo":"5"},
-            {"texto":"detras de Porteria","id":"dporteriae","color":"#33FF57","tiempo":"7"},  
-            {"texto":"4x3","id":"4x3","color":"#3357FF","tiempo":"10"}
-        ]
-        self.eventos_2= [
-            {"texto":"Repliegue","id":"repliegue","color":"#FF5733","tiempo":"5"},
-            {"texto":"detras de Porteria","id":"dporteriae","color":"#33FF57","tiempo":"7"},  
-            {"texto":"4x3","id":"4x3","color":"#3357FF","tiempo":"10"}
-        ]
-        
-        
         self._setup_ui()
     
     def _setup_ui(self):
@@ -50,11 +37,13 @@ class ActionsWidget(QWidget):
         for event in self.event_definitions:
             evento = self.event_definitions[event]
             print(evento)
-            btn = QPushButton(event)
-            btn.setGeometry(10, 10, 40, 30)
-            btn.setStyleSheet(f"background-color: {evento['color']}; color: black; border-radius: 5px; padding: 5px; width: 8px; height: 30px;")
-            btn.clicked.connect(lambda _, v=evento: self.handle_event(v))
-            
+            #btn = QPushButton(event)
+            btn = self.create_control_button(
+                text=evento['name'],
+                tooltip=evento['name'],
+                object_name=evento['name'],
+                evento=evento
+            )
             category_name = evento['categoria']
             if category_name == "Defensa" or category_name == "Ataque":
                 FaseOfensiva.addWidget(btn) 
@@ -81,6 +70,20 @@ class ActionsWidget(QWidget):
         #layout.addWidget(di_group)
         self.setLayout(layout)
         
+        
+    def create_control_button(self, text, tooltip, object_name, evento):
+        """Crear un botón de control con estilo consistente"""
+        btn = QPushButton(text)
+        btn.setObjectName(object_name)
+        btn.setToolTip(tooltip)
+        btn.setCursor(Qt.PointingHandCursor)
+        btn.setGeometry(10, 10, 40, 30)
+        btn.setStyleSheet(f"background-color: {evento['color']}; color: white; border-radius: 5px; padding: 5px; width: 8px; height: 30px;")
+        btn.clicked.connect(lambda _, v=evento: self.handle_event(v))
+        
+          
+            
+        return btn
     
     def handle_event(self, event_type):
         #print(f"Evento id seleccionado: {event_type}")
