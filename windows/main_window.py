@@ -1,19 +1,19 @@
-from components.video_player import VideoPlayerWidget
-from components.controls_bar import ControlsBar
-from components.video_controller_bar import VideoControlBar 
-from components.timeline import Timeline
-from components.event_panel import EventPanel
-from components.eventWidget import EventWidget
-from components.actionsWidget import ActionsWidget
+from video_player_module.video_player import VideoPlayerWidget
+from video_player_module.video_controller_bar import VideoControlBar 
+from timeline_module.timeline import Timeline
+from actions_module.actionsWidget import ActionsWidget
 from items.video_item import VideoItem
 from core.project_manager import ProjectManager
+from events_module.tactical_event import TacticalEvent
+from events_module.tactical_event_widget import TacticalEventWidget   
+import os
 from utils import time_to_position, position_to_time, format_time, format_time_long
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QSplitter, QMenuBar, QMenu, QAction, QToolBar, QPushButton, QLabel, QSlider,
-    QStatusBar, QDockWidget, QMessageBox, QFileDialog
+    QSplitter, QAction, QPushButton, QLabel, QSlider,
+    QStatusBar, QDockWidget, QFileDialog
 )
-from PyQt5.QtCore import Qt, QSettings, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QSettings
 from PyQt5.QtGui import QKeySequence, QIcon
 
 
@@ -94,9 +94,10 @@ class MainWindow(QMainWindow):
             }
         """)
         self.timeline = Timeline()
-        self.event_panel = EventWidget()
+        self.event_panel = TacticalEventWidget()
+        #self.event_panel = TacticalEventListWidget()
         
-        self.actiosns_panel= ActionsWidget(self.event_panel.event_manager.EVENT_TYPES)
+        self.actiosns_panel= ActionsWidget(self.event_panel.EVENT_TYPES)
         
         self.event_dock = QDockWidget("Panel de Eventos Tácticos", self)
         self.event_dock.setWidget(self.event_panel)
@@ -183,12 +184,12 @@ class MainWindow(QMainWindow):
         view_menu.addAction(self.event_dock.toggleViewAction())
         
         # Menú Herramientas
-        #tools_menu = menubar.addMenu("&Herramientas")
+        tools_menu = menubar.addMenu("&Herramientas")
         
         # Configuración
-        #settings_action = QAction("&Configuración", self)
+        settings_action = QAction("&Configuración", self)
         #settings_action.triggered.connect(self.show_settings)
-        #tools_menu.addAction(settings_action)
+        tools_menu.addAction(settings_action)
    
    
     def _create_toolbars(self):
@@ -288,7 +289,7 @@ class MainWindow(QMainWindow):
         # Event panel signals
         self.event_panel.event_selected.connect(self.jump_to_event)
         self.event_panel.event_added.connect(self.on_event_added)
-        self.event_panel.event_deleted.connect(self.on_event_deleted)
+        #self.event_panel.event_deleted.connect(self.on_event_deleted)
         
         # actionsWidget signals
         self.actiosns_panel.event_added.connect(self.on_sction_event_added)
@@ -380,7 +381,9 @@ class MainWindow(QMainWindow):
             end_time = event['event_end']
             self.video_player.set_position(start_time)
             self.statusbar.showMessage(f"Saltando a evento: {event['event_type']} en {event['event_start']:.2f}s", 3000)
-            self.update_timeline_playhead(start_time)
+            #self.update_timeline_playhead(start_time)
+            x_position = start_time * self.timeline.pixels_per_second
+            self.timeline.set_playhead_position(x_position)
             self.timeline.add_event_selection(start_time,end_time)
         
     def on_event_added(self, event):
@@ -403,7 +406,15 @@ class MainWindow(QMainWindow):
             'event_type': event['categoria'],
             'event_duration': event['time']
         }
-        self.event_panel.add_event(new_event)
+        tactical_event = TacticalEvent(
+            timestamp=position_start,
+            event_name=event['id'],
+            event_type=event['categoria'],
+            event_start=position_start,
+            event_end=position_end,
+            event_duration=event['time'])
+        #self.event_panel.add_event(new_event)
+        self.event_panel.add_event(tactical_event)
     
     def on_speedChanged(self, speed):
         print(f"Cambiando velocidad a: {speed}x")
@@ -413,8 +424,12 @@ class MainWindow(QMainWindow):
         
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self, 
-            "Save File", "", "All Files(*.vta);", options = options)
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, 
+            "giardar projecto",
+            "", 
+            "Todos los archivos (*.vta)"
+        )
         video_path = self.current_video_path
         events = self.event_panel.get_all_events()
         print(f"Guardando proyecto con video: {video_path} y {len(events)} eventos")
@@ -451,11 +466,20 @@ class MainWindow(QMainWindow):
             item = VideoItem(video_path)
             self.timeline.add_video(video_path, item.duration)
             for event in events:
-                self.event_panel.add_event(event, loaded=True)
+                
+                tactical_event = TacticalEvent(
+                    id=event['id'],
+                    event_name=event['event_name'],
+                    event_type=event['event_type'],
+                    event_start=event['event_start'],
+                    event_end=event['event_end'],
+                    event_duration=event['event_duration']
+                )
+                self.event_panel.add_event(tactical_event, loaded=True)
                 self.on_event_added(event)
         '''
     def zoom_label(self):
-        print("zoom_label")
+        print("zoom_label")event_manager
         
     def zoom_slider(self):
         print("zoom_slider")

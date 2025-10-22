@@ -1,21 +1,21 @@
-"""
-Panel lateral para gestión de eventos tácticos
-"""
-from core.event_manager import EventManager
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout,
-    QTreeWidget, QTreeWidgetItem, QComboBox, QLineEdit,
-    QLabel, QGroupBox, QCheckBox, QSpinBox, QTextEdit,
-    QHeaderView, QMenu, QAction, QInputDialog, QMessageBox
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTreeWidget, QTreeWidgetItem,
+    QLabel, QGroupBox, QHeaderView, QMenu, QAction, QMessageBox, QComboBox
 )
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QColor, QBrush
+from PyQt5.QtGui import QColor, QBrush
 
-class EventWidget2(QWidget):
+from .tactical_event import TacticalEvent
+from .tactical_event_edit_dialog import TacticalEventEditDialog
+import json
+
+from .tactical_event_manager import TacticalEventManager
+
+class TacticalEventWidget(QWidget):
     """
     Panel para visualizar y gestionar eventos tácticos.
     """
-    
+
     event_selected = pyqtSignal(dict)  # Evento seleccionado
     event_added = pyqtSignal(dict)     # Nuevo evento añadido
     event_deleted = pyqtSignal(str)    # ID del evento eliminado
@@ -23,11 +23,18 @@ class EventWidget2(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.event_manager = EventManager()
+        self.event_manager = TacticalEventManager()
         self.current_timestamp = 0
-        
+        self.load_event_types()
         self._setup_ui()
         
+        #self.event_manager.on_event_removed = self.on_event_removed
+      
+      
+    def load_event_types(self):  
+        with open('resources/event_types.json', 'r') as file:
+            self.EVENT_TYPES = json.load(file)
+            
     def _setup_ui(self):
         """Configura la interfaz del panel."""
         self.setMinimumWidth(500)
@@ -77,7 +84,7 @@ class EventWidget2(QWidget):
         
         # Doble click para saltar al evento
         self.events_tree.itemDoubleClicked.connect(self.jump_to_event)
-        
+        #self.events_tree.itemClicked.connect(self.select_event)
         events_layout.addWidget(self.events_tree)
         
         # Estadísticas rápidas
@@ -101,44 +108,23 @@ class EventWidget2(QWidget):
         
         self.setLayout(layout)
         
-    def add_event(self, event, loaded=False):
+    def add_event(self, event: TacticalEvent, loaded=False):
         """Añade un nuevo evento."""
         print(event)
         event_data = {}
         evento = None
-        if loaded:
-            event_data = {
-                'timestamp': event['timestamp'],
-                'event_name': event['event_name'],
-                'event_type': event['event_type'],
-                'match_minute': event['match_minute'],
-                'event_duration': event['event_duration']
-            }
-            evento = {
-                'event_start': event['match_minute'],
-                'event_end': event['timestamp'],
-                'event_name':  event['event_name'],
-                'event_type': event['event_type'],
-                'event_duration': event['event_duration']
-            }
-        else:
-            event_data = {
-                'timestamp': event['event_end'],
-                'event_name': event['event_name'],
-                'event_type': event['event_type'],
-                'match_minute': event['event_start'],
-                'event_duration': event['event_duration']
-            }
-            evento = event
+ 
+            
+        evento = event
 
         # Añadir al event manager
-        event = self.event_manager.add_event(**event_data)
+        event = self.event_manager.add_event(event)
         
         # Añadir a la lista visual
         self.add_event_to_tree(evento)
         
         # Emitir señal
-        self.event_added.emit(evento)
+        self.event_added.emit(evento.to_dict())
         
         # Limpiar formulario
         #self.notes_text.clear()
@@ -146,15 +132,15 @@ class EventWidget2(QWidget):
         # Actualizar estadísticas
         self.update_stats()
         
-    def add_event_to_tree(self, event):
+    def add_event_to_tree(self, event: TacticalEvent):
         """Añade un evento al árbol visual."""
         item = QTreeWidgetItem()
-        
-        starttime = self.format_time(event['event_start'])
-        endtime = self.format_time(event['event_end'])
+        event_name = event.event_name
+        starttime = self.format_time(event.event_start)
+        endtime = self.format_time(event.event_end)
         item.setText(0, starttime)
         item.setText(1, endtime)
-        evento_all = self.event_manager.get_event_def(event['event_name'])
+        evento_all = self.get_event_def(event_name)
         # Tipo con icono
         event_icons = {
             'pass': '⚽', 'shot': '🥅', 'loss': '❌',
@@ -162,10 +148,10 @@ class EventWidget2(QWidget):
             'offside': '🚩', 'substitution': '🔄'
         }
         #icon = event_icons.get(event.event_type, '📌')
-        icon = evento_all['icon']
-        categoria = evento_all['categoria']
+        #icon = evento_all['icon']
+        categoria = event.event_type#evento_all['categoria']
         # Jugador
-        item.setText(2, f"{icon} {event['event_name'].capitalize()}")
+        item.setText(2, f"{event.event_name.capitalize()}")
         # Jugador
         item.setText(3, categoria)
         
@@ -175,7 +161,7 @@ class EventWidget2(QWidget):
         # Guardar referencia al evento
         item.setData(0, Qt.UserRole, event)
         
-
+       
         color1 = evento_all['color']
         color = QColor(color1)
         color2 = QColor(0,0,0)
@@ -187,7 +173,7 @@ class EventWidget2(QWidget):
         item.setForeground(2, QBrush(color))
         item.setForeground(3, QBrush(color))
         item.setTextAlignment(0,0)
-        
+        ''' '''
         
         self.events_tree.addTopLevelItem(item)
         
@@ -204,7 +190,7 @@ class EventWidget2(QWidget):
         """Salta a la posición del evento seleccionado."""
         event = item.data(0, Qt.UserRole)
         if event:
-            self.event_selected.emit(event)
+            self.event_selected.emit(event.to_dict())
             
         
     def apply_filter(self, filter_text):
@@ -280,14 +266,68 @@ class EventWidget2(QWidget):
         
     def get_all_events(self):
         """Devuelve todos los eventos como lista de diccionarios."""
-        return [event.to_dict() for event in self.event_manager.get_events()]
+        return [event.to_dict() for event in self.event_manager.events]
     
     def delete_event(self,item):
         event = item.data(0, Qt.UserRole)
         if event:
-            self.event_manager.delete_event_from_list(event)
-            print(event)
+            reply = QMessageBox.question(
+                self,
+                "Confirmar eliminación",
+                f"¿Eliminar '{event.event_name}'?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                self.event_manager.remove_event(event)
+                self.refresh_events()
+            
+            
+    def edit_event(self,item):
+        evento = item.data(0, Qt.UserRole)
+        event = TacticalEvent(
+            event_name=evento.event_name,
+            event_type=evento.event_type,
+            event_start=evento.event_start,
+            event_end=evento.event_end,
+            event_duration=evento.event_duration,
+            #match_minute=evento.match_minute,
+            #tags=evento.tags,
+            #coordinates=evento.coordinates
+        )
+        event.id = evento.id
+        """Edición rápida de un evento desde la tabla."""
+        dialog = TacticalEventEditDialog(event, self)
+        if dialog.exec_():
+            updated_event = dialog.get_updated_event()
+            self.event_manager.replace_event(event.id, updated_event)
+            self.refresh_events()
+    
+    def quick_delete_event(self, event: TacticalEvent):
+        """Eliminación rápida de un evento desde la tabla."""
+        reply = QMessageBox.question(
+            self,
+            "Confirmar eliminación",
+            f"¿Eliminar '{event.event_name}'?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
         
+        if reply == QMessageBox.Yes:
+            self.event_manager.remove_event(event)
+            #self.refresh_table()
         
+     
+    def on_event_removed(self, event: TacticalEvent):
+        """Callback cuando se elimina un evento."""
+        self.event_deleted.emit(event)   
         
-        
+    def get_event_def(self, event_type):
+        """Obtiene un evento por su tipo."""
+        for event in self.EVENT_TYPES:
+            if event == event_type:
+                evv = self.EVENT_TYPES[event]
+                print(evv)
+                return evv
+        return None
