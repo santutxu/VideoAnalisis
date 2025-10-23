@@ -115,6 +115,7 @@ class EventManager:
     
     def get_event_def(self, event_type):
         """Obtiene un evento por su tipo."""
+        
         for event in self.EVENT_TYPES:
             if event == event_type:
                 evv = self.EVENT_TYPES[event]

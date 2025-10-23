@@ -1,19 +1,22 @@
-from video_player_module.video_player import VideoPlayerWidget
-from video_player_module.video_controller_bar import VideoControlBar 
-from timeline_module.timeline import Timeline
-from actions_module.actionsWidget import ActionsWidget
+import os
+from pathlib import Path
 from items.video_item import VideoItem
 from core.project_manager import ProjectManager
+from video_player_module.video_controller_bar import VideoControlBar
+from video_player_module.video_player import VideoPlayerWidget
+from timeline_module.timeline import Timeline
+from actions_module.actionsWidget import ActionsWidget
+from events_module.tactical_event_widget import TacticalEventWidget
 from events_module.tactical_event import TacticalEvent
-from events_module.tactical_event_widget import TacticalEventWidget   
-import os
+from components.eventWidget import EventWidget
+from components.event_type_module import TemplateManagerDialog
 from utils import time_to_position, position_to_time, format_time, format_time_long
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QSplitter, QAction, QPushButton, QLabel, QSlider,
-    QStatusBar, QDockWidget, QFileDialog
+    QSplitter, QMenuBar, QMenu, QAction, QToolBar, QPushButton, QLabel, QSlider,
+    QStatusBar, QDockWidget, QMessageBox, QFileDialog
 )
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt, QSettings, pyqtSignal, QTimer
 from PyQt5.QtGui import QKeySequence, QIcon
 
 
@@ -36,6 +39,8 @@ class MainWindow(QMainWindow):
         self.current_position = 0.0
         self.current_second = 0
         self.current_frame =0
+        self.templates_dir = Path("templates")
+        self.isSettingsAvailable = True
         # Configurar ventana
         self.setWindowTitle("Video Tactics Analyzer - Análisis Táctico Deportivo")
         self.setGeometry(100, 100, 1400, 900)
@@ -188,7 +193,7 @@ class MainWindow(QMainWindow):
         
         # Configuración
         settings_action = QAction("&Configuración", self)
-        #settings_action.triggered.connect(self.show_settings)
+        settings_action.triggered.connect(self.show_settings)
         tools_menu.addAction(settings_action)
    
    
@@ -289,7 +294,7 @@ class MainWindow(QMainWindow):
         # Event panel signals
         self.event_panel.event_selected.connect(self.jump_to_event)
         self.event_panel.event_added.connect(self.on_event_added)
-        #self.event_panel.event_deleted.connect(self.on_event_deleted)
+        self.event_panel.event_deleted.connect(self.on_event_deleted)
         
         # actionsWidget signals
         self.actiosns_panel.event_added.connect(self.on_sction_event_added)
@@ -315,6 +320,7 @@ class MainWindow(QMainWindow):
             item = VideoItem(file_path)
             self.timeline.add_video(file_path, item.duration)
             self.timeline.set_playhead_position(0)
+            self.isSettingsAvailable = False
             
     def set_duration(self, duration, total_frames,fps):
         """Establece la duración total del video."""
@@ -335,6 +341,9 @@ class MainWindow(QMainWindow):
             
     def on_playhead_moved(self, x):
         #print(f"Playhead moved to: {seconds:.2f}s")
+        if self.current_video_path:
+            QMessageBox.warning(self, "Advertencia", "No puede cambiar la configuración con un video cargado")
+            return
         seconds = (x / self.timeline.pixels_per_second) 
         if not self.video_player.is_playing:
             self.video_player.set_position(seconds)
@@ -396,6 +405,9 @@ class MainWindow(QMainWindow):
         
     # acciones actionsWidget
     def on_sction_event_added(self, event):
+        if not self.current_video_path:
+            QMessageBox.warning(self, "Advertencia", "Primero debe cargar un video")
+            return
         position_end = self.current_second
         position_start = position_end - float(event['time'])
         print(f"Nueva accion evento en {event}")
@@ -457,6 +469,7 @@ class MainWindow(QMainWindow):
                 video_path = video.get('path', None)
                 events = project_data[2].get('moments', [])
                 self.import_project_data(video_path,events)
+                self.isSettingsAvailable = False
           
           
     def import_project_data(self, video_path, events):      
@@ -477,9 +490,26 @@ class MainWindow(QMainWindow):
                 )
                 self.event_panel.add_event(tactical_event, loaded=True)
                 self.on_event_added(event)
+    def show_settings(self):  
+        if self.current_video_path:
+            QMessageBox.warning(self, "Advertencia", "No puede cambiar la configuración con un video cargado")
+            return
+        print("show_settings")
+        dialog = TemplateManagerDialog(str(self.templates_dir))
+        dialog.template_selected.connect(self.on_template_Selected)
+        dialog.exec_()
+     
+    def on_template_Selected(self, template_data):  
+        print("Template selected:", template_data)   
+        event_types = template_data.get('events', [])
+        #self.actiosns_panel.event_definitions = event_types
+        self.event_panel.EVENT_TYPES = event_types
+        self.actiosns_panel.refresh(event_types)
+        
+        
         '''
     def zoom_label(self):
-        print("zoom_label")event_manager
+        print("zoom_label")
         
     def zoom_slider(self):
         print("zoom_slider")

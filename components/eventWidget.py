@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor, QBrush
 
-class EventWidget2(QWidget):
+class EventWidget(QWidget):
     """
     Panel para visualizar y gestionar eventos tácticos.
     """
