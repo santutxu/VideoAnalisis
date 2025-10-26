@@ -1,0 +1,99 @@
+[
+  {
+    "id": "4x3d",
+    "nombre": "4x3",
+    "categoria": "Defensa",
+    "color": "#FF9800",
+    "icon": "3️⃣",
+    "shortcut": "1",
+    "time": "5"
+  },
+  {
+    "id": "acciond",
+    "nombre": "Accion Def",
+    "categoria": "Defensa",
+    "color": "#FFC107",
+    "icon": "📊",
+    "time": "5"
+  },
+  {
+    "id": "desajuste",
+    "nombre": "Desajuste",
+    "icon": "🏒",
+    "color": "#FFC107",
+    "categoria": "Defensa",
+    "time": "5"
+  },
+  {
+    "id": "desajuste",
+    "nombre": "Desajuste",
+    "icon": "🏒",
+    "color": "#FFC107",
+    "categoria": "Defensa",
+    "time": "5"
+  },
+  {
+    "id": "4x3a",
+    "nombre": "4x3",
+    "icon": "🔄",
+    "color": "#FF6A07",
+    "categoria": "Ataque",
+    "time": "5"
+  },
+  {
+    "id": "finalizacion",
+    "nombre": "Finalizacion",
+    "icon": "🎯",
+    "color": "#FF6A07",
+    "categoria": "Ataque",
+    "time": "5"
+  },
+  {
+    "id": "repliegue",
+    "nombre": "Repliegue",
+    "icon": "↩️",
+    "color": "#2196F3",
+    "categoria": "transicion",
+    "time": "5"
+  },
+  {
+    "id": "contra",
+    "nombre": "Contraataque",
+    "icon": "⚡",
+    "color": "#2196F3",
+    "categoria": "transicion",
+    "time": "5"
+  },
+  {
+    "id": "penalti",
+    "nombre": "Penalti",
+    "icon": "⚡",
+    "color": "#006A07",
+    "categoria": "bolapareda",
+    "time": "5"
+  },
+  {
+    "id": "fdirecta",
+    "nombre": "F.D",
+    "icon": "⚡",
+    "color": "#006A07",
+    "categoria": "bolapareda",
+    "time": "5"
+  },
+  {
+    "id": "falta",
+    "nombre": "Falta",
+    "icon": "⚡",
+    "color": "#006A07",
+    "categoria": "bolapareda",
+    "time": "5"
+  },
+  {
+    "id": "gol",
+    "nombre": "GOL",
+    "icon": "⚡",
+    "color": "#E620E6",
+    "categoria": "gol",
+    "time": "5"
+  }
+]

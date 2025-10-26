@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from items.video_item import VideoItem
 from core.project_manager import ProjectManager
@@ -18,6 +19,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QSettings, pyqtSignal, QTimer
 from PyQt5.QtGui import QKeySequence, QIcon
+from resources.icon_data_base import IconDatabase
 
 
 
@@ -54,6 +56,8 @@ class MainWindow(QMainWindow):
         self._create_statusbar()
         self._setup_layout()
         self._connect_signals()
+        self.cicons = IconDatabase().get_icons()
+        print("Icons loaded:", list(self.cicons.keys()))
         
         
     def _create_widgets(self):
@@ -341,7 +345,7 @@ class MainWindow(QMainWindow):
             
     def on_playhead_moved(self, x):
         #print(f"Playhead moved to: {seconds:.2f}s")
-        if self.current_video_path:
+        if not self.current_video_path:
             QMessageBox.warning(self, "Advertencia", "No puede cambiar la configuración con un video cargado")
             return
         seconds = (x / self.timeline.pixels_per_second) 
@@ -499,14 +503,33 @@ class MainWindow(QMainWindow):
         dialog.template_selected.connect(self.on_template_Selected)
         dialog.exec_()
      
-    def on_template_Selected(self, template_data):  
+    def on_template_Selected(self, template_data, isDefault):  
         print("Template selected:", template_data)   
         event_types = template_data.get('events', [])
         #self.actiosns_panel.event_definitions = event_types
         self.event_panel.EVENT_TYPES = event_types
         self.actiosns_panel.refresh(event_types)
+        if isDefault:
+            self.save_default_template(template_data)
+            
         
+    def save_default_template(self, template_data):
+                
+        self.current_file = str("resources/event_types.json" )
+            
+        # Obtener datos de la tabla
         
+        try:
+            # Guardar en archivo
+            with open(self.current_file, 'w', encoding='utf-8') as f:
+                json.dump(template_data, f, indent=2, ensure_ascii=False)
+                
+            
+            # Mostrar mensaje de éxito
+            QMessageBox.information(self, "Guardado", "set as default template correctamente.")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al guardar plantilla: {str(e)}")
         '''
     def zoom_label(self):
         print("zoom_label")

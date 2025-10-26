@@ -539,7 +539,7 @@ class EventTypeTableWidget(QWidget):
 class TemplateManagerDialog(QDialog):
     """Dialog principal para gestión de plantillas JSON"""
     
-    template_selected = pyqtSignal(dict)  # Emite la plantilla seleccionada
+    template_selected = pyqtSignal(dict,bool)  # Emite la plantilla seleccionada
     
     def __init__(self, templates_dir: str = "templates", parent=None):
         super().__init__(parent)
@@ -819,6 +819,10 @@ class TemplateManagerDialog(QDialog):
         layout.addWidget(btn_export_template)
         
         layout.addStretch()
+        
+        self.checkDefaultTemplate = QCheckBox("⭐ Establecer como Predeterminada")
+        self.checkDefaultTemplate.setToolTip("Usar esta plantilla como predeterminada para nuevos proyectos")
+        layout.addWidget(self.checkDefaultTemplate)
         
         # Botones de la derecha
         btn_apply = QPushButton("✅ Aplicar y Cerrar")
@@ -1702,10 +1706,13 @@ class TemplateManagerDialog(QDialog):
         if not current_item or current_item.data(Qt.UserRole) == "NEW":
             QMessageBox.warning(self, "Advertencia", "Seleccione una plantilla para duplicar")
             return   
+        
+        
         # Emitir datos d
         # e la plantilla actual
         data = self.get_table_data()
-        self.template_selected.emit({"events": data})
+        isChecked = self.checkDefaultTemplate.isChecked()
+        self.template_selected.emit({"events": data},isChecked)
         #self.template_selected.emit(current_item.data(Qt.UserRole))
         self.accept()
         

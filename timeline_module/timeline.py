@@ -224,7 +224,7 @@ class Timeline(QGraphicsView):
                 self.enable_cut_mode(False)
             else:
                 super().mousePressEvent(event)
-                '''
+                
                 item = self.scene.itemAt(scene_pos, QTransform())
                 if isinstance(item, TimelineItem):
                     self.set_active_item(item)
@@ -232,7 +232,7 @@ class Timeline(QGraphicsView):
                 elif isinstance(item.parentItem(), TimelineItem):
                     self.set_active_item(item.parentItem())
                     self.video_selected.emit(item.parentItem().video_path)
-                '''
+                
                 #self.set_playhead_position(scene_pos.x())
                 self.playhead_moved.emit(scene_pos.x())
         else:

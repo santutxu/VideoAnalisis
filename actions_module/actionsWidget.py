@@ -34,7 +34,7 @@ class ActionsWidget(QWidget):
         AccionesBolaParada = QHBoxLayout()
         discipline = QHBoxLayout()
         
-        for evento in self.event_definitions:
+        for evento in self.event_definitions['events']:
             #evento = self.event_definitions[event]
             print(evento)
             #btn = QPushButton(event)
