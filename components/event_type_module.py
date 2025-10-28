@@ -8,6 +8,8 @@ from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from resources.icon_data_base import IconDatabase
+from .icon_picker import IconPickerWindow
 @dataclass
 class EventTemplate:
     """Estructura de un evento en la plantilla"""
@@ -24,6 +26,148 @@ class EventTemplate:
         if self.tags is None:
             self.tags = []
 
+class IconSelectorDialog(QDialog):
+    """Diálogo para seleccionar iconos"""
+    
+    def __init__(self, current_icon="📌", parent=None):
+        super().__init__(parent)
+        self.selected_icon = current_icon
+        self.icon_db = IconDatabase()
+        self.init_ui()
+        
+    def init_ui(self):
+        self.setWindowTitle("Seleccionar Icono")
+        self.setModal(True)
+        self.setMinimumSize(600, 500)
+        
+        layout = QVBoxLayout()
+        
+        # Barra de búsqueda
+        search_layout = QHBoxLayout()
+        search_layout.addWidget(QLabel("Buscar:"))
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Buscar icono por nombre o palabras clave...")
+        self.search_input.textChanged.connect(self.filter_icons)
+        search_layout.addWidget(self.search_input)
+        layout.addLayout(search_layout)
+        
+        # Área de scroll para los iconos
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        self.icons_widget = QWidget()
+        self.icons_layout = QVBoxLayout(self.icons_widget)
+        self.icons_layout.setAlignment(Qt.AlignTop)
+        scroll.setWidget(self.icons_widget)
+        layout.addWidget(scroll)
+        
+        # Vista previa del icono seleccionado
+        preview_layout = QHBoxLayout()
+        preview_layout.addWidget(QLabel("Seleccionado:"))
+        self.preview_label = QLabel(self.selected_icon)
+        self.preview_label.setStyleSheet("""
+            QLabel {
+                font-size: 32px;
+                padding: 10px;
+                background-color: #f0f0f0;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+            }
+        """)
+        preview_layout.addWidget(self.preview_label)
+        preview_layout.addStretch()
+        
+        # Botones
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        preview_layout.addWidget(buttons)
+        
+        layout.addLayout(preview_layout)
+        self.setLayout(layout)
+        
+        # Cargar iconos
+        self.load_icons()
+        
+    def load_icons(self, search_text=""):
+        """Carga los iconos en el widget"""
+        # Limpiar layout existente
+        while self.icons_layout.count():
+            child = self.icons_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+                
+        icons_data = self.icon_db.get_icons()
+        search_lower = search_text.lower()
+        
+        for category, icons in icons_data.items():
+            # Filtrar iconos según búsqueda
+            if search_text:
+                filtered_icons = [
+                    icon for icon in icons
+                    if search_lower in icon.name.lower() or
+                    any(search_lower in keyword.lower() for keyword in icon.keywords)
+                ]
+                if not filtered_icons:
+                    continue
+            else:
+                filtered_icons = icons
+            
+            # Grupo de categoría
+            category_group = QGroupBox(category)
+            category_layout = QVBoxLayout()
+            
+            # Grid de iconos
+            icons_grid = QGridLayout()
+            icons_grid.setSpacing(5)
+            
+            for i, icon_data in enumerate(filtered_icons):
+                # Botón de icono
+                btn = QPushButton(icon_data.emoji)
+                btn.setToolTip(f"{icon_data.name}\nPalabras clave: {', '.join(icon_data.keywords)}")
+                btn.setFixedSize(50, 50)
+                btn.setStyleSheet("""
+                    QPushButton {
+                        font-size: 24px;
+                        border: 1px solid #ddd;
+                        border-radius: 5px;
+                        background-color: white;
+                    }
+                    QPushButton:hover {
+                        background-color: #e3f2fd;
+                        border: 2px solid #2196F3;
+                    }
+                    QPushButton:pressed {
+                        background-color: #bbdefb;
+                    }
+                """)
+                
+                # Conectar clic
+                btn.clicked.connect(lambda checked, emoji=icon_data.emoji: self.select_icon(emoji))
+                
+                # Añadir al grid
+                row = i // 8  # 8 iconos por fila
+                col = i % 8
+                icons_grid.addWidget(btn, row, col)
+            
+            category_layout.addLayout(icons_grid)
+            category_group.setLayout(category_layout)
+            self.icons_layout.addWidget(category_group)
+            
+        # Añadir espaciador al final
+        self.icons_layout.addStretch()
+        
+    def filter_icons(self, text):
+        """Filtra los iconos según el texto de búsqueda"""
+        self.load_icons(text)
+        
+    def select_icon(self, emoji):
+        """Selecciona un icono"""
+        self.selected_icon = emoji
+        self.preview_label.setText(emoji)
+        
+    def get_selected_icon(self):
+        """Retorna el icono seleccionado"""
+        return self.selected_icon
 
 class EventTypeListWidget(QWidget):
     """
@@ -1105,12 +1249,20 @@ class TemplateManagerDialog(QDialog):
         self.table.setCellWidget(row, 3, color_btn)
         
         # Icono
+        icon = event_data.get("icon", "📌")
+        icon_edit = QPushButton(f"{icon}" )
+        #icono = QIcon(icon)
+        #icon_edit.setStyleSheet(f"background-color: {color}; border: 1px solid #000;")
+        #icon_edit.setIcon(icono)
+        icon_edit.clicked.connect(lambda: self.select_icon(event_data,row))
+        self.table.setCellWidget(row, 4, icon_edit)
+        '''
         icon_edit = QLineEdit(event_data.get("icon", "📌"))
         icon_edit.setMaxLength(2)
         icon_edit.setAlignment(Qt.AlignCenter)
         icon_edit.textChanged.connect(lambda: self.mark_as_modified())
         self.table.setCellWidget(row, 4, icon_edit)
-        
+        '''
         # Atajo
         shortcut_edit = QLineEdit(event_data.get("shortcut", ""))
         shortcut_edit.setPlaceholderText("F1, Ctrl+1...")
@@ -1258,6 +1410,16 @@ class TemplateManagerDialog(QDialog):
             button.setProperty("color", color.name())
             self.mark_as_modified()
             self.update_preview()
+    def select_icon(self, button,row):
+        """Seleccionar color para un evento"""
+        #current_color = button.property("icon" or "📌")
+        
+        dialog = IconPickerWindow(button,row)
+        dialog.icon_selected.connect(self.on_icon_selected)
+        dialog.exec_()
+        
+        
+
             
     def update_preview(self):
         """Actualizar panel de vista previa"""
@@ -1736,7 +1898,14 @@ class TemplateManagerDialog(QDialog):
         else:
             event.accept()
 
-
+    def on_icon_selected(self, icon,row):
+        """Manejar icono seleccionado desde el selector"""
+        """Manejar cambios en items de la tabla"""
+        data = self.get_row_data(row)
+        self.table.cellWidget(row, 4).setText(icon['emoji'])
+        self.mark_as_modified()
+        self.update_preview()
+            
 # Ejemplo de uso
 def main():
     app = QApplication(sys.argv)
