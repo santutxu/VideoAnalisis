@@ -10,6 +10,8 @@ class IconData:
     category: str
     keywords: List[str]
     
+    
+    
 class IconDatabase:
     """Base de datos de iconos organizados por categorías"""
     
@@ -227,3 +229,20 @@ class IconDatabase:
                 IconData("👂", "Oreja", "Médico", ["oído", "escuchar"]),
             ]
         }
+
+class IconList:
+    """Lista plana de todos los iconos"""
+    
+    def __init__(self):
+        self.icons: List[IconData] = []
+        categories = IconDatabase.get_icons()
+        for cat_icons in categories.values():
+            self.icons.extend(cat_icons)
+            
+    def find_icon_by_name(self, name: str) -> Optional[IconData]:
+        for icon in self.icons:
+            if icon.name == name:
+                return icon
+        return None
+    def get_all_icons(self) -> List[IconData]:
+        return self.icons
