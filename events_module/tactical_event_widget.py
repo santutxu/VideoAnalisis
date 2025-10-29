@@ -33,7 +33,8 @@ class TacticalEventWidget(QWidget):
       
     def load_event_types(self):  
         with open('resources/event_types.json', 'r') as file:
-            self.EVENT_TYPES = json.load(file)
+            eventes = json.load(file)
+            self.EVENT_TYPES = eventes['events']
             
     def _setup_ui(self):
         """Configura la interfaz del panel."""

@@ -2,33 +2,123 @@
   "events": [
     {
       "enabled": true,
-      "id": "1",
-      "nombre": "alberto",
+      "id": "4x3",
+      "nombre": "4x3",
       "categoria": "Defensa",
-      "color": "#27ae60",
-      "icon": "▶",
-      "shortcut": "F1",
-      "time": "4"
-    },
-    {
-      "enabled": true,
-      "id": "2",
-      "nombre": "juan",
-      "categoria": "Defensa",
-      "color": "#f39c12",
-      "icon": "⏸",
-      "shortcut": "F2",
+      "color": "#f9f06b",
+      "icon": "📐",
+      "shortcut": "1",
       "time": "5"
     },
     {
       "enabled": true,
-      "id": "3",
-      "nombre": "pepe",
+      "id": "Accion Def",
+      "nombre": "Accion Def",
       "categoria": "Defensa",
-      "color": "#e74c3c",
-      "icon": "■",
-      "shortcut": "F3",
-      "time": "6"
+      "color": "#f9f06b",
+      "icon": "💪",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Desajuste",
+      "nombre": "Desajuste",
+      "categoria": "Defensa",
+      "color": "#f9f06b",
+      "icon": "↩️",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Construccion",
+      "nombre": "Construccion",
+      "categoria": "Ataque",
+      "color": "#ffbe6f",
+      "icon": "🏒",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "4x3",
+      "nombre": "4x3",
+      "categoria": "Ataque",
+      "color": "#ffbe6f",
+      "icon": "🔄",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Finalizacion",
+      "nombre": "Finalizacion",
+      "categoria": "Ataque",
+      "color": "#ffbe6f",
+      "icon": "🎯",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Repliegue",
+      "nombre": "Repliegue",
+      "categoria": "transicion",
+      "color": "#99c1f1",
+      "icon": "⏮️",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Contraataque",
+      "nombre": "Contraataque",
+      "categoria": "transicion",
+      "color": "#99c1f1",
+      "icon": "⏭️",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Penalti",
+      "nombre": "Penalti",
+      "categoria": "bolapareda",
+      "color": "#57e389",
+      "icon": "⚡",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "F.D",
+      "nombre": "F.D",
+      "categoria": "bolapareda",
+      "color": "#8ff0a4",
+      "icon": "💢",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "Falta",
+      "nombre": "Falta",
+      "categoria": "bolapareda",
+      "color": "#8ff0a4",
+      "icon": "🤚",
+      "shortcut": "",
+      "time": "5"
+    },
+    {
+      "enabled": true,
+      "id": "GOL",
+      "nombre": "GOL",
+      "categoria": "gol",
+      "color": "#dc8add",
+      "icon": "⚽",
+      "shortcut": "",
+      "time": "5"
     }
   ]
 }
