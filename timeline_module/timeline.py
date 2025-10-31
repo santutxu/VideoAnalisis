@@ -60,6 +60,25 @@ class Timeline(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
+        
+        
+    def _reset_timeline_properties(self, mseconds, pps):
+        seconds = mseconds / 1000
+        duration = seconds * 0.2
+        """Configurar propiedades del timeline"""
+        print("Resetting timeline properties")
+        print("seconds {mseconds} pps {pps}")
+        self.min_pixels_per_second = 2
+        self.max_pixels_per_second = 50
+        self.pixels_per_second = pps
+        self.timeline_duration = duration
+        timeline_width = self.timeline_duration * self.max_pixels_per_second
+        self.timeline_width = self.timeline_duration * self.max_pixels_per_second
+        self.timeline_height = 80
+        
+        self.scene.setSceneRect(0, 0, self.timeline_width, self.timeline_height + 30)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
     def _create_timeline_elements(self):
         """Crear elementos del timeline"""
         # Regla
@@ -76,6 +95,34 @@ class Timeline(QGraphicsView):
         # Líneas de guía
         self.guide_lines = []
         self.update_guide_lines()
+        
+        # Playhead
+        self.playhead = PlayheadLine(self.timeline_height + 30)
+        self.scene.addItem(self.playhead)
+        self.playhead.setPos(0, 0)
+        
+        # Línea de corte
+        self.cut_line = CutLine(self.timeline_height + 30)
+        self.scene.addItem(self.cut_line)
+    def _reset_timeline_elements(self, mseconds, pps):
+        seconds = mseconds / 1000
+        duration = seconds * 0.2
+        """Crear elementos del timeline"""
+        timeline_width = self.timeline_duration * self.max_pixels_per_second
+        # Regla
+        self.ruler = TimelineRuler(timeline_width, 30, self.pixels_per_second)
+        self.scene.addItem(self.ruler)
+        self.ruler.setPos(0, 0)
+        
+        # Fondo
+        self.timeline_bg = QGraphicsRectItem(0, 30, timeline_width, self.timeline_height)
+        self.timeline_bg.setBrush(QBrush(QColor(60, 60, 60)))
+        self.timeline_bg.setPen(QPen(Qt.NoPen))
+        self.scene.addItem(self.timeline_bg)
+        
+        # Líneas de guía
+        self.guide_lines = []
+        self.reset_guide_lines(duration)
         
         # Playhead
         self.playhead = PlayheadLine(self.timeline_height + 30)
@@ -105,7 +152,32 @@ class Timeline(QGraphicsView):
             
         # Crear nuevas líneas
         pen = QPen(QColor(80, 80, 80), 1, Qt.DashLine)
-        for second in range(0, self.timeline_duration + 1, interval):
+        for second in range(0, int(self.timeline_duration) + 1, interval):
+            x = second * self.pixels_per_second
+            if x <= self.timeline_width:
+                line = self.scene.addLine(x, 30, x, self.timeline_height + 30, pen)
+                line.setZValue(-1)
+                self.guide_lines.append(line)
+    def reset_guide_lines(self,duration):
+        """Actualizar las líneas de guía según el zoom"""
+        # Eliminar líneas existentes
+        for line in self.guide_lines:
+            self.scene.removeItem(line)
+        self.guide_lines.clear()
+        
+        # Determinar intervalo según zoom
+        if self.pixels_per_second >= 20:
+            interval = 5
+        elif self.pixels_per_second >= 10:
+            interval = 10
+        elif self.pixels_per_second >= 5:
+            interval = 20
+        else:
+            interval = 30
+            
+        # Crear nuevas líneas
+        pen = QPen(QColor(80, 80, 80), 1, Qt.DashLine)
+        for second in range(0, int(duration) + 1, interval):
             x = second * self.pixels_per_second
             if x <= self.timeline_width:
                 line = self.scene.addLine(x, 30, x, self.timeline_height + 30, pen)
@@ -138,6 +210,14 @@ class Timeline(QGraphicsView):
             
     def add_video(self, video_path, duration_ms, start_trim=0, end_trim=None):
         """Añadir un video al timeline automáticamente"""
+        
+        self.clear_timeline()
+        
+        self.timeline_duration = duration_ms / 1000
+        self._reset_timeline_properties(duration_ms, self.pixels_per_second)
+        self._reset_timeline_elements(duration_ms, self.pixels_per_second)
+        
+        
         x_pos = self.next_available_x
         
         item = TimelineItem(video_path, x_pos, 40, duration_ms, 
@@ -150,7 +230,11 @@ class Timeline(QGraphicsView):
         self.next_available_x = x_pos + item_width + 0
         
         self.ensureVisible(item)
+
+        #self.timeline_duration = 1200
+        #self.timeline_width = self.timeline_duration * self.max_pixels_per_second
         self.timeline_changed.emit()
+        self.scene.update()
         return item
         
     def split_item_at_position(self, item, split_x):

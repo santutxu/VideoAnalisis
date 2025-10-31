@@ -290,3 +290,18 @@ class VideoPlayerWidget(QWidget):
     
     def on_speedChanged(self, speed):
         self.speedChanged.emit(speed)
+        
+    def clear_video(self):
+        """Limpia el video cargado y resetea el thread."""
+        self.video_thread.resetThread()
+        self.current_frame = None
+        self.current_time = None
+        self.total_frames = None
+        self.fps = None
+        self.duration = 0
+        self.is_playing = False
+        self.video_label.clear()
+        self.controls_bar.setDisabled(True)
+        self.zones = []
+        self.current_drawing = []
+        self.is_drawing_mode = False

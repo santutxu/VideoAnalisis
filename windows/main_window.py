@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
         self._create_statusbar()
         self._setup_layout()
         self._connect_signals()
+        #self.on_zoom_changed(self.zoom_slider.value())
         self.cicons = IconDatabase().get_icons()
         print("Icons loaded:", list(self.cicons.keys()))
         
@@ -124,7 +125,7 @@ class MainWindow(QMainWindow):
         # Nuevo proyecto
         new_action = QAction(QIcon("resources/icons/new.png"), "&Nuevo Proyecto", self)
         new_action.setShortcut(QKeySequence.New)
-        #new_action.triggered.connect(self.import_videos)
+        new_action.triggered.connect(self._new_project)
         file_menu.addAction(new_action)
         
         # Abrir video
@@ -454,7 +455,15 @@ class MainWindow(QMainWindow):
         project_data = self.project_manager.create_project_data(video_path, events,[],0,12000,30,15,1)
         self.project_manager.save_project(fileName,project_data)
         
+    
+    def _new_project(self):    
         
+        self.project_manager.new_project()
+        self.current_video_path = None
+        self.video_player.clear_video()
+        self.timeline.clear_timeline()
+        self.event_panel.clear_all_events() 
+        self.isSettingsAvailable = True    
     def _open_project(self):    
         
         """Abre un archivo de video."""
