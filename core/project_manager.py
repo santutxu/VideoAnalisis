@@ -84,7 +84,37 @@ class ProjectManager:
             if os.path.exists(f"{file_path}.backup"):
                 os.rename(f"{file_path}.backup", file_path)
             return False, f"Error al guardar proyecto: {str(e)}"
+     
+    def new_project(self, name: str = "New Project") -> Dict:
+        """
+        Crea un nuevo proyecto.
+        
+        Args:
+            name: Nombre del proyecto
             
+        Returns:
+            Datos del proyecto creado
+        """
+        self.project_data = {
+            'name': name,
+            'created_at': datetime.now().isoformat(),
+            'modified_at': datetime.now().isoformat(),
+            'video_path': None,
+            'video_info': {},
+            'events_file': None,
+            'metadata': {
+                'sport': 'football',
+                'competition': '',
+                'date': '',
+                'teams': [],
+                'venue': ''
+            }
+        }
+        
+        self.project_path = None
+        self.is_modified = True
+        
+        return self.project_data       
     def load_project(self, file_path):
         """Cargar proyecto desde archivo JSON"""
         try:

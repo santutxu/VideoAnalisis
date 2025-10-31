@@ -137,8 +137,8 @@ class TacticalEventWidget(QWidget):
         """Añade un evento al árbol visual."""
         item = QTreeWidgetItem()
         event_name = event.event_name
-        starttime = self.format_time(event.event_start)
-        endtime = self.format_time(event.event_end)
+        starttime = self.format_time3(event.event_start)
+        endtime = self.format_time3(event.event_end)
         item.setText(0, starttime)
         item.setText(1, endtime)
         evento_all = self.get_event_def(event_name)
@@ -230,6 +230,22 @@ class TacticalEventWidget(QWidget):
         minutes = int(seconds // 60)
         secs = int(seconds % 60)
         return f"{minutes:02d}:{secs:02d}"
+    def format_time2(self,milliseconds):
+        """Formatear tiempo de milisegundos a MM:SS"""
+        seconds = milliseconds / 1000
+        minutes = int(seconds // 60)
+        hours = int(minutes // 60)
+        secs = int(seconds % 60)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+    def format_time3(self,seconds):
+        """Formatear tiempo de milisegundos a MM:SS"""
+        #seconds = milliseconds / 1000
+        minutes = int(seconds // 60)
+        hours = int(minutes // 60)
+        if minutes >= 60:
+            minutes = minutes % 60
+        secs = int(seconds % 60)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d}"
         
     def set_current_timestamp(self, timestamp):
         """Actualiza el timestamp actual para nuevos eventos."""

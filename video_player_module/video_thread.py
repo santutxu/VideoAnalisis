@@ -58,3 +58,12 @@ class VideoThread(QThread):
                     self.is_playing = False
             else:
                 self.msleep(100)
+                
+    def resetThread(self):
+        """Reinicia el thread de video."""
+        self.cap = None
+        self.is_playing = False
+        self.current_position = 0
+        self.current_frame = 0
+        self.fps = 30
+        self.frame_delay = 33  # milliseconds

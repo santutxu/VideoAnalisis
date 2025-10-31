@@ -39,6 +39,7 @@ class TimelineRuler(QGraphicsItem):
         
     def paint(self, painter, option, widget):
         """Dibujar la regla con marcas de tiempo"""
+        self.width = int(self.width)
         painter.fillRect(0, 0, self.width, self.height, QColor(40, 40, 40))
         
         painter.setPen(QPen(Qt.white, 1))
